@@ -3,6 +3,8 @@
 #include <Trampoline.h>
 #include "MemoryMgr.h"
 #include "Patterns.h"
+#include "FmvDetection.h"
+#include <atomic>
 
 namespace WidescreenFix
 {
@@ -14,8 +16,25 @@ namespace WidescreenFix
     static float hFovPrevious_precalc;
     static float hFovPrevious_postcalc;
 
+    static uint8_t* pConstrainAspectRatio;
+    static uint8_t constrainAspectRatioOriginal;
+    static std::atomic<bool> fmvPlaying;
+
+    // FMVs are drawn in the player's screen layer, which Unreal only insets to 16:9 while the camera
+    // constrains its aspect ratio, so the game's own constraint is restored for as long as one plays
+    static void OnFmvPlayingChanged(bool playing) {
+        OutputDebugStringA(playing ? "Crash4WidescreenFix: FMV started, constraining to 16:9\n"
+                                   : "Crash4WidescreenFix: FMV stopped, releasing 16:9 constraint\n");
+        fmvPlaying = playing;
+        Memory::VP::Patch<uint8_t>(pConstrainAspectRatio, playing ? constrainAspectRatioOriginal : 0);
+        FlushInstructionCache(GetCurrentProcess(), pConstrainAspectRatio, 1);
+    }
 
     static void CalculateNew_hFov() {
+        // The view is constrained to 16:9 during FMVs, so the game's FOV is already correct
+        if (fmvPlaying)
+            return;
+
         float aspect = *pWidth / *pHeight;
 
         if (aspect > 1.777778) {
@@ -56,9 +75,12 @@ void OnInitializeHook() {
 
         auto cameraPattern = pattern ("F3 0F 11 47 18 8B 83 00 02 00 00"); // 0x141E6C84F
 
-        // First, disable bConstrainAspectRatio
-        // TODO: Re-enable this during FMV cutscenes
-        Patch<uint8_t>(cameraPattern.get_first(26), 0);
+        // First, disable bConstrainAspectRatio, re-enabling it only while an FMV is playing
+        pConstrainAspectRatio = cameraPattern.get_first<uint8_t>(26);
+        constrainAspectRatioOriginal = *pConstrainAspectRatio;
+        Patch<uint8_t>(pConstrainAspectRatio, 0);
+        if (!FmvDetection::Install(OnFmvPlayingChanged))
+            OutputDebugStringA("Crash4WidescreenFix: MFCreateMediaSession import not found, FMVs will stay stretched\n");
 
         Trampoline* trampoline = Trampoline::MakeTrampoline(cameraPattern.get_first() );
         auto calculateTrampoline = trampoline->Jump(CalculateNew_hFov);

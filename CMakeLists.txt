@@ -4,7 +4,7 @@ project(Crash4WidescreenFix VERSION 1.0.0
                             LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 
-add_library(Crash4WidescreenFix SHARED src/main.cpp src/stdafx.h src/HookInit.cpp
+add_library(Crash4WidescreenFix SHARED src/main.cpp src/stdafx.h src/HookInit.cpp src/FmvDetection.cpp src/FmvDetection.h
          external/ModUtils/Patterns.cpp  )
 target_precompile_headers(Crash4WidescreenFix PRIVATE src/stdafx.h)
 
