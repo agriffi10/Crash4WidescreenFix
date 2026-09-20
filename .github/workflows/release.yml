@@ -22,8 +22,8 @@ jobs:
 
       - name: Assemble the zip
         run: |
-          New-Item -ItemType Directory package
-          Copy-Item build\Release\Crash4WidescreenFix.asi package\
+          New-Item -ItemType Directory -Force package\scripts
+          Copy-Item build\Release\Crash4WidescreenFix.asi package\scripts\
           Copy-Item packaging\dsound.dll package\
           Compress-Archive -Path package\* -DestinationPath Crash4WidescreenFix.zip
 
