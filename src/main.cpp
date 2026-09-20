@@ -72,6 +72,14 @@ void OnInitializeHook() {
     try {
         using namespace WidescreenFix;
 
+        // The resolution pointers come from the pattern above, which can fail independently of this
+        // one. Without them the FOV can't be corrected and the hook below would dereference null, so
+        // leave the game unpatched instead of half-patched.
+        if (pWidth == nullptr) {
+            OutputDebugStringA("Crash4WidescreenFix: resolution pattern not found, leaving the game unpatched\n");
+            return;
+        }
+
         auto cameraPattern = pattern ("F3 0F 11 47 18 8B 83 00 02 00 00"); // 0x141E6C84F
 
         // First, disable bConstrainAspectRatio, re-enabling it only while an FMV is playing
