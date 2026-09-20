@@ -30,6 +30,12 @@ Note that `src/stdafx.h` includes the standard headers that ModUtils itself reli
 `stdext::make_checked_array_iterator`, which current MSVC no longer ships. Without these the pinned version of
 ModUtils no longer compiles.
 
+## Releases
+Publishing a release on GitHub builds the mod and attaches `Crash4WidescreenFix.zip` to it, containing the `.asi` and
+`dsound.dll` ready to extract into the game folder. This requires `packaging/dsound.dll`, the 64-bit
+[Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader), to be committed to the repository; the
+workflow does not download it. Drafting a release does not build anything, only publishing does.
+
 ## Credits
 [ThirteenAG](https://github.com/ThirteenAG) - [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader)\
 [Silent](https://github.com/CookiePLMonster) - [ModUtils](https://github.com/CookiePLMonster/ModUtils)
