@@ -22,9 +22,9 @@ cmake -B build -A x64
 cmake --build build --config Release
 ```
 This produces `build\Release\Crash4WidescreenFix.asi`. To test it, copy it over the `.asi` in the `scripts` folder of
-an existing installation of the mod, so that `dsound.dll` is still present one folder above it. The mod logs to the debugger, so
-[DebugView](https://learn.microsoft.com/sysinternals/downloads/debugview) will show which patches were applied and
-when a cutscene starts and stops.
+an existing installation of the mod, so that `dsound.dll` is still present one folder above it. The mod logs to the
+debugger, so [DebugView](https://learn.microsoft.com/sysinternals/downloads/debugview) will show which patches were
+applied and when a cutscene starts and stops.
 
 Note that `src/stdafx.h` includes the standard headers that ModUtils itself relies on, and provides a replacement for
 `stdext::make_checked_array_iterator`, which current MSVC no longer ships. Without these the pinned version of
@@ -32,7 +32,8 @@ ModUtils no longer compiles.
 
 ## Releases
 Publishing a release on GitHub builds the mod and attaches `Crash4WidescreenFix.zip` to it, laid out as the ASI
-Loader expects: `dsound.dll` at the top level and the `.asi` in `scripts`, ready to extract into the game folder. This requires `packaging/dsound.dll`, the 64-bit
+Loader expects: `dsound.dll` at the top level and the `.asi` in `scripts`, ready to extract into the game folder.
+This requires `packaging/dsound.dll`, the 64-bit
 [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader), to be committed to the repository; the
 workflow does not download it. Drafting a release does not build anything, only publishing does.
 
