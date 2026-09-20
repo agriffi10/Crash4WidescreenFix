@@ -1,0 +1,33 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Build
+        run: |
+          cmake -B build -A x64
+          cmake --build build --config Release
+
+      - name: Assemble the zip
+        run: |
+          New-Item -ItemType Directory -Force package\scripts
+          Copy-Item build\Release\Crash4WidescreenFix.asi package\scripts\
+          Copy-Item packaging\dsound.dll package\
+          Compress-Archive -Path package\* -DestinationPath Crash4WidescreenFix.zip
+
+      - name: Attach it to the release
+        run: gh release upload ${{ github.event.release.tag_name }} Crash4WidescreenFix.zip --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
